@@ -2,12 +2,13 @@ const fs = require('fs');
 
 const dumpFilePath = 'C:\\Data\\UsagiBotDump\\dump.txt';
 
-const restActions = require('./rest-actions');
 const { USAGI_CONSTANT } = require('./usagi.constants');
+
+var restActions = null;
 
 var hasChanges = true;
 
-var realTimeRepository = {
+const realTimeRepository = {
     guilds: {},
     users: {},
     channels: {},
@@ -115,6 +116,7 @@ exports.userAllowKick = function (guildId, executorId) {
 }
 
 var updateGuilds = function () {
+    restActions = restActions || require('./rest-actions');
     let guilds = realTimeRepository.guilds;
     for (var key in guilds) {
         if (Object.prototype.hasOwnProperty.call(guilds, key)) {
