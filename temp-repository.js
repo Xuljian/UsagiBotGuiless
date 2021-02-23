@@ -2,13 +2,12 @@ const fs = require('fs');
 
 const dumpFilePath = 'C:\\Data\\UsagiBotDump\\dump.txt';
 
-const { USAGI_CONSTANT } = require('./usagi.constants');
-
 var restActions = null;
+const { USAGI_CONSTANT } = require('./usagi.constants');
 
 var hasChanges = true;
 
-const realTimeRepository = {
+var realTimeRepository = {
     guilds: {},
     users: {},
     channels: {},
@@ -168,8 +167,13 @@ var importFromFile = function () {
 }
 importFromFile();
 
-setInterval(registerUsersFromGuilds, 1000);
-setInterval(updateGuilds, 10000);
-setInterval(exportToFile, 1000);
+let intervalReady = setInterval(() => {
+    if (realTimeRepository.fileInit) {
+        setInterval(registerUsersFromGuilds, 1000);
+        setInterval(updateGuilds, 10000);
+        setInterval(exportToFile, 1000);
+        clearInterval(intervalReady);
+    }
+});
 
 exports.realTimeRepository = realTimeRepository;
