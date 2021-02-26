@@ -34,7 +34,7 @@ exports.pso2ModulesReady = true;
 
 const queue = [];
 
-exports.getPayload = function(name, ext, callback) {
+exports.getPayloadWildcard = function(name, ext, callback) {
     queue.push({
         name: name,
         ext: ext,
@@ -42,7 +42,7 @@ exports.getPayload = function(name, ext, callback) {
     })
 }
 
-let getPayloadWildcard = function(name, num, ext, callback) {
+let getPayload = function(name, num, ext, callback) {
     const executor = require('child_process');
     let regex = new RegExp(`^.*\\.*${name}.*\.(${regexExtensions})$`);
     let foundString = newFileMaps.find(string => {
@@ -111,7 +111,8 @@ let processConversionCml = function(inputFilePath, outputPath, extension, callba
     if (extension == null || extension === '' || allowConversionExtension.indexOf(extension) < 0) {
         callback({
             newPath: `${inputFilePath}`,
-            newExtension: `cml`
+            newExtension: `cml`,
+            cleanupPath: outputPath
         }, mainCallback)
         return;
     }
