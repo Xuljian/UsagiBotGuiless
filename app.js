@@ -1,5 +1,5 @@
-var mainProcess = require('./websocket-actions').mainProcess;
-const { realTimeRepository } = require('./temp-repository');
+var mainProcess = require('./Usagi/websocket-actions').mainProcess;
+const { realTimeRepository } = require('./Usagi/temp-repository');
 const { clearInterval } = require('timers');
 
 var messageLog = null;
