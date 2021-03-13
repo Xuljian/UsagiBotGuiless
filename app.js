@@ -1,5 +1,5 @@
 var mainProcess = require('./Usagi/websocket-actions').mainProcess;
-const { realTimeRepository } = require('./Usagi/temp-repository');
+const { realTimeRepository, onclose } = require('./Usagi/temp-repository');
 const { clearInterval } = require('timers');
 
 var messageLog = null;
@@ -20,7 +20,16 @@ function UncaughtExceptionHandler(err) {
     setInterval(function () { }, 5000000);
 }
 
-process.on('uncaughtException', UncaughtExceptionHandler);
+[`SIGQUIT`,`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((eventType) => {
+    let defaultFunction = () => {
+        console.log(eventType)
+        onclose(true);
+    };
+    if (eventType === 'uncaughtException') {
+        defaultFunction = UncaughtExceptionHandler;
+    }
+    process.on(eventType, defaultFunction);
+})
 
 let timeOut = setInterval(() => {
     try {
