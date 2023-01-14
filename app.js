@@ -26,14 +26,12 @@ function UncaughtExceptionHandler(err) {
 
 [`SIGQUIT`,`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((eventType) => {
     let defaultFunction = () => {
-        onClose(true, () => {
+        onClose(true, true, () => {
             end();
             cronJob.haltCron();
             endPSO2();
             endRest();
-            setTimeout(() => {
-                process.exit(0);
-            }, 5000);
+            process.exit(0);
         });
     };
     if (eventType === 'uncaughtException') {
