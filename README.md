@@ -10,5 +10,6 @@ This repository is the gui-less counterpart of the UsagiBot
 Download and install [NodeJS](https://nodejs.org/en/)  
 ## Steps
 ```
+npm install <-- Execute this in the root folder of this repo
 node app.js
 ```
