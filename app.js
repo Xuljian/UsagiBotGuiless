@@ -1,6 +1,10 @@
-var mainProcess = require('./Usagi/websocket-actions').mainProcess;
-const { realTimeRepository, onclose } = require('./Usagi/temp-repository');
-const { clearInterval } = require('timers');
+var { mainProcess, end } = require('./Usagi/websocket-actions');
+const { realTimeRepository, onClose } = require('./Usagi/temp-repository');
+const cronJob = require('./Usagi/utils/cron-job');
+const { endPSO2 } = require('./Usagi/utils/pso2/pso2-modules');
+const { endRest } = require('./Usagi/rest-actions');
+
+const { timeoutChainer } = require('./Usagi/utils/timeout-chainer');
 
 var messageLog = null;
 
@@ -22,8 +26,15 @@ function UncaughtExceptionHandler(err) {
 
 [`SIGQUIT`,`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((eventType) => {
     let defaultFunction = () => {
-        console.log(eventType)
-        onclose(true);
+        onClose(true, () => {
+            end();
+            cronJob.haltCron();
+            endPSO2();
+            endRest();
+            setTimeout(() => {
+                process.exit(0);
+            }, 5000);
+        });
     };
     if (eventType === 'uncaughtException') {
         defaultFunction = UncaughtExceptionHandler;
@@ -31,14 +42,14 @@ function UncaughtExceptionHandler(err) {
     process.on(eventType, defaultFunction);
 })
 
-let timeOut = setInterval(() => {
+let timeout = timeoutChainer(() => {
     try {
         if (realTimeRepository.fileInit) {
             start();
-
-            clearInterval(timeOut);
+            timeout.stop = true;
         }
     } catch (e) {
         console.log(e)
+        timeout.stop = true;
     }
 }, 500)
