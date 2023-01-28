@@ -5,6 +5,7 @@ const { endPSO2 } = require('./Usagi/utils/pso2/pso2-modules');
 const { endRest } = require('./Usagi/rest-actions');
 
 const { timeoutChainer } = require('./Usagi/utils/timeout-chainer');
+const { log } = require('./Usagi/utils/logger');
 
 var messageLog = null;
 
@@ -12,26 +13,26 @@ var start = function () {
     try {
         messageLog = mainProcess();
     } catch (exception) {
-        console.log(exception);
+        log(exception);
+        end();
         start();
     }
 }
 
 function UncaughtExceptionHandler(err) {
-    console.log("Uncaught Exception Encountered!!");
-    console.log("err: ", err);
-    console.log("Stack trace: ", err.stack);
+    log("Uncaught Exception Encountered!!");
+    log("err: ", err);
+    log("Stack trace: ", err.stack);
     setInterval(function () { }, 5000000);
 }
 
-[`SIGQUIT`,`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((eventType) => {
+[`SIGQUIT`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((eventType) => {
     let defaultFunction = () => {
         onClose(true, true, () => {
             end();
             cronJob.haltCron();
             endPSO2();
             endRest();
-            process.exit(0);
         });
     };
     if (eventType === 'uncaughtException') {
@@ -47,7 +48,7 @@ let timeout = timeoutChainer(() => {
             timeout.stop = true;
         }
     } catch (e) {
-        console.log(e)
+        log(e)
         timeout.stop = true;
     }
 }, 500)
